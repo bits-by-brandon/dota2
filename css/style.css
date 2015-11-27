@@ -1,0 +1,260 @@
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+    line-height: 20px;
+    
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+/*------------------------ END CSS Reset -------------------------*/
+
+h1{
+    font-size: 16px;
+    line-height: 40px;
+    font-family: 'Montserrat', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 10px;
+}
+
+p{
+    font-size: 14px;
+    line-height: 25px;
+}
+
+#legend{
+    position: fixed;
+    width: 225px;
+    height: 100%;
+    left: 0px;
+    background-color: #222;
+    z-index: 100;
+    overflow: hidden;
+}
+
+.legendItem{
+    color: #fff;
+    width: 185px;
+    padding-bottom: 20px;
+    padding-top: 20px;
+    padding-left: 40px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 0px solid #ffc1af;
+    transition: all 0.2s ease-in-out;
+}
+
+.legendItem:hover{
+    background-color: #333;
+    cursor: pointer;
+    border-left: 10px solid #e2572d;
+}
+
+#logo img{
+    position: absolute;
+    top: 15px;
+    left: 20px;
+}
+
+#logo {
+    position: absolute;
+    background-color: #111;
+    width: 100%;
+    height: 160px;
+    top: 0px;
+    box-shadow: 0px 3px 3px 3px #000; 
+    overflow: auto;
+}
+
+#legendList {
+    height: calc(100% - 160px);
+    position: relative;
+    margin-top: 160px;
+    width: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    letter-spacing: 1px;
+}
+
+#topList, #bottomList{
+    overflow-x: hidden;
+    overflow-y: scroll;
+    width: 100%;
+    height: auto;
+    position: absolute;
+    transition: transform 300ms ease-in-out;
+}
+
+#topList.active{
+    transform: translateX(-225px);
+}
+
+#bottomList{
+    transform: translateX(225px);
+}
+
+#bottomList.active{
+    transform: translateX(0);
+}
+
+#pullOut {
+    position: fixed;
+    width: 300px;
+    left: -75px;
+    background-color: #373737;
+    height: 100%;
+    z-index: 80;
+}
+
+.selected{
+    background-color: rgb(186, 62, 45) !important;
+    opacity: 1 !important;
+}
+
+#pulloutTab {
+    position: absolute;
+    width: auto;
+    top: 50%;
+    margin-top: -50px;
+    right: 6px;
+    z-index: 100;
+    transition: all 0.3s ease-in-out;
+}
+
+#pulloutTab img:first-child{
+    position: absolute;
+    left: 0px; 
+}
+
+#pulloutTab:hover {
+    cursor: pointer;
+    transform: translateX(6px);
+}
+
+#mapWindow {
+    position: absolute;
+    overflow: hidden;
+    height: 100%;
+    left: 225px;
+    top: 0px;
+}
+
+#mapContainer {
+    position: absolute;
+}
+
+#map {
+    position: absolute;
+    width: auto;
+    height: auto;
+    top: 0px;
+    left: 0px;
+}
+
+#map:hover {
+    cursor: -webkit-grab;
+    cursor: grab;
+}
+
+#map:active {
+    cursor: -webkit-grabbing;
+    cursor: grabbing;
+}
+
+#dotMatrix {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.matrixItem {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background-color: #e2572d;
+    opacity: 0.7;
+    border-radius: 50%;
+    box-shadow: 0px 0px 10px 1px #000;
+    transition: all 0.3s ease-in-out;
+    animation: pulse 1s ease-in-out infinite;
+}
+
+.matrixItem:hover {
+    cursor: pointer;
+    opacity: 1;
+}
+
+.infoP {
+    position: absolute;
+    color: #fff;
+    width: 200px;
+    margin-left: 50px;
+    margin-top: 50px;
+    opacity: 0;
+    margin-bottom: 50px;
+}
+
+.infoP img{
+    width: 200px;
+    margin-bottom: 30px;
+}
+
+#arrow {
+    position: absolute;
+    top: 43px;
+    left: 2px;
+    transition: all 0.35s ease-in-out;
+}
+
+.rotate{
+    transform: rotate(180deg);
+}
+
+@keyframes pulse{
+    0%{ transform: scale(1); }
+    30%{ transform: scale(1); }
+    50%{ transform: scale(1.2); }
+    80%{ transform: scale(1); }
+    100%{ transform: scale(1); }
+}
