@@ -29,6 +29,7 @@ body {
     font-family: 'Roboto', sans-serif;
     font-weight: 300;
     line-height: 20px;
+    background-color: #000;
     
 }
 ol, ul {
@@ -49,19 +50,28 @@ table {
 
 /*------------------------ END CSS Reset -------------------------*/
 
-h1{
+*{box-sizing: border-box}
+
+h1,h2{
     font-size: 16px;
     line-height: 40px;
     font-family: 'Montserrat', sans-serif;
     text-transform: uppercase;
     letter-spacing: 3px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    margin-bottom: 10px;
+}
+
+h1{
+    padding: 30px;
+}
+
+h2{
+    padding: 30px 30px 10px;
 }
 
 p{
     font-size: 14px;
     line-height: 25px;
+    padding: 30px;
 }
 
 #legend{
@@ -72,11 +82,16 @@ p{
     background-color: #222;
     z-index: 100;
     overflow: hidden;
+    transition: all 300ms ease-in-out;
+}
+
+#legend.active{
+    width: 330px;
 }
 
 .legendItem{
     color: #fff;
-    width: 185px;
+    width: 100%;
     padding-bottom: 20px;
     padding-top: 20px;
     padding-left: 40px;
@@ -91,85 +106,121 @@ p{
     border-left: 10px solid #e2572d;
 }
 
+.legendItem.active{
+    background-color: #e2572d;
+}
+
+.legendItem.deactive{
+    opacity: 0;
+}
+
 #logo img{
     position: absolute;
-    top: 15px;
-    left: 20px;
+    top: 13px;
+    left: 50%;
+    width: 60px;
+    margin-left: -30px;
 }
 
 #logo {
     position: absolute;
-    background-color: #111;
+    background-color: #333;
     width: 100%;
-    height: 160px;
+    height: 80px;
     top: 0px;
-    box-shadow: 0px 3px 3px 3px #000; 
+    box-shadow: 0px 1px 3px 2px rgba(0,0,0,0.2); 
     overflow: auto;
 }
 
 #legendList {
-    height: calc(100% - 160px);
+    height: calc(100% - 80px);
     position: relative;
-    margin-top: 160px;
+    margin-top: 80px;
     width: 100%;
     overflow-y: scroll;
     overflow-x: hidden;
     letter-spacing: 1px;
 }
 
-#topList, #bottomList{
+#topList, #info{
     overflow-x: hidden;
     overflow-y: scroll;
     width: 100%;
     height: auto;
     position: absolute;
-    transition: transform 300ms ease-in-out;
+    transition: transform 400ms ease-in-out;
 }
 
 #topList.active{
     transform: translateX(-225px);
 }
 
-#bottomList{
-    transform: translateX(225px);
+#info{
+    transform: translateX(-330px);
+    min-height: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    background-color: #fff;
+}
+
+#info.active{
+    transition-delay: 100ms;
+    transform: translateX(0);
+}
+
+#info img{
+    width: 100%;
+    padding: 0 30px;
+}
+
+#exit{
+    position: absolute;
+    top: 40px;
+    right: 30px;
+    width: 30px;
+    height: 30px;
+    display: block;
+}
+
+#exit:hover{
+    cursor: pointer;
+}
+
+#exit:before, #exit:after{
+    content: '';
+    display: block;
+    width: 100%;
+    height: 4px;
+    background-color: #e2572d;
+    border-radius: 2px;
+    transition: all 600ms cubic-bezier(0.72,-0.1, 0.15, 1.4);
+    transition-delay: 300ms;
+}
+
+#exit:before{
+    transform: translateY(2.5px);
+}
+
+#exit:after{
+    transform: translateY(-2.5px);
+}
+
+#exit.active:before{
+    transform: rotate(135deg) translateY(-2.5px);
+}
+
+#exit.active:after{
+    transform: rotate(-135deg) translateY(2.5px); 
 }
 
 #bottomList.active{
     transform: translateX(0);
 }
 
-#pullOut {
-    position: fixed;
-    width: 300px;
-    left: -75px;
-    background-color: #373737;
-    height: 100%;
-    z-index: 80;
-}
 
 .selected{
     background-color: rgb(186, 62, 45) !important;
     opacity: 1 !important;
-}
-
-#pulloutTab {
-    position: absolute;
-    width: auto;
-    top: 50%;
-    margin-top: -50px;
-    right: 6px;
-    z-index: 100;
-    transition: all 0.3s ease-in-out;
-}
-
-#pulloutTab img:first-child{
-    position: absolute;
-    left: 0px; 
-}
-
-#pulloutTab:hover {
-    cursor: pointer;
-    transform: translateX(6px);
 }
 
 #mapWindow {
@@ -202,10 +253,32 @@ p{
     cursor: grabbing;
 }
 
-#dotMatrix {
-    position: absolute;
-    width: 100%;
-    height: 100%;
+
+#dots{
+    padding: 10px 15px;
+}
+
+.dot{
+    display: block;
+    position: relative;
+    width: 26px;
+    height: 26px;
+    background-color: #e2572d;
+    border-radius: 50%;
+    transition: all 0.3s ease-in-out;
+    counter-increment: dot;
+    margin-left: 15px;
+    margin-bottom: 15px;
+    float: left;
+    animation: pulse 5s ease-in-out infinite;
+}
+
+.dot:hover{
+    cursor: pointer;
+}
+
+#description{
+    clear:both
 }
 
 .matrixItem {
@@ -217,7 +290,7 @@ p{
     border-radius: 50%;
     box-shadow: 0px 0px 10px 1px #000;
     transition: all 0.3s ease-in-out;
-    animation: pulse 1s ease-in-out infinite;
+    animation: ping 1.5s ease-in-out infinite;
 }
 
 .matrixItem:hover {
@@ -225,19 +298,10 @@ p{
     opacity: 1;
 }
 
-.infoP {
-    position: absolute;
-    color: #fff;
-    width: 200px;
-    margin-left: 50px;
-    margin-top: 50px;
-    opacity: 0;
-    margin-bottom: 50px;
-}
-
-.infoP img{
-    width: 200px;
-    margin-bottom: 30px;
+.matrixItem.active, .dot.active{
+    animation-delay: 0;
+    background-color: #0f0;
+    animation: ping 0.6s ease-in-out infinite;
 }
 
 #arrow {
@@ -253,8 +317,16 @@ p{
 
 @keyframes pulse{
     0%{ transform: scale(1); }
-    30%{ transform: scale(1); }
-    50%{ transform: scale(1.2); }
-    80%{ transform: scale(1); }
+    10%{ transform: scale(1); background-color: #e2572d; }
+    12%{ transform: scale(1.2); background-color: #f44; }
+    18%{ transform: scale(1); background-color: #e2572d; }
+    100%{ transform: scale(1); }
+}
+
+@keyframes ping{
+    0%{ transform: scale(1); }
+    20%{ transform: scale(1);}
+    40%{ transform: scale(1.2);}
+    60%{ transform: scale(1);}
     100%{ transform: scale(1); }
 }

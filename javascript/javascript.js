@@ -1,5 +1,6 @@
 $(document).ready(function(){
 
+    var currInfo = false;
     var mouse = {
         "x" : 0,
         "y" : 0
@@ -17,6 +18,7 @@ $(document).ready(function(){
 
     windowSize();
     parentSize();
+    setClick();
 
     $(window).resize(function(){
         windowSize();
@@ -36,8 +38,6 @@ $(document).ready(function(){
         $('#mapContainer').css({
             'width': containerWidth+'px',
             'height': containerHeight+'px',
-            //'left' : ($('#map').width() - $('#mapWindow').width()) * -1 + 'px',
-            //'top': ($('#map').height() - $('#mapWindow').height()) * -1 +'px',
             'left' : containerLeft,
             'top': containerTop 
         });
@@ -54,13 +54,12 @@ $(document).ready(function(){
             "y" : -1 * ( map.y + parseInt( containerTop ) - event.pageY )
         };
         
-        console.log(containerWidth);
-        console.log('x = ' + mouse.x + '  |  y = ' + mouse.y);
+        //console.log('x = ' + mouse.x + '  |  y = ' + mouse.y);
     });
 
 
     
-    //$('#map').draggable({ containment: "parent" });
+    $('#map').draggable({ containment: "parent" });
         
     $('#mapClick').click(function(){
         //close();
@@ -104,48 +103,115 @@ $(document).ready(function(){
 
     // ==== Adds a div to the html for every type of data in the document =====
     function createEntry(type, key){
-        // create coresponding dots on map
-        entry = '<div class="matrixItem" data-matrix="'+ count +'" id="matrix'+ count +'"></div>';
-        $( '#map' ).prepend(entry);
+
+
+        // create coresponding dots on map 
+        console.log( key );
+        for ( i = 0; i < type.instance.length; i++ ){
+            var coordinates = {
+                'x' : type.instance[i].x,
+                'y' : type.instance[i].y,
+            }
+            entry = '<div class="matrixItem" data-legend="'+ key +'" data-index="'+ i +'" style=" left:'+ (coordinates.x - 240) +'px; top:'+ ( coordinates.y - 20 ) +'px"></div>';
+            $( '#map' ).prepend(entry);
+        }
 
         // create the top tier list item and add to DOM
         entry = " <div id='info"+ count +"' class='infoP'> <img src='"+ type.image +"'> <h1>"+ type.name +"</h1> <p>"+ type.description +"</p> </div> ";
         //$( '#topList' ).append(entry);
 
         // create the top tier list item and add to DOM
-        entry = " <li id='legend"+ count +"' class='legendItem' data-legend='"+ key +"'>"+ type[0].name +"</li> ";
-        console.log(type);
+        entry = " <li id='legend"+ count +"' class='legendItem' data-legend='"+ key +"'>"+ type.name +"</li> ";
         $( '#topList' ).append(entry);
 
     }
+
+    $( '.matrixItem' ).click(function(){
+        $this = $( this );
+        legend = $this.data( 'legend' );
+        console.log( legend );
+        var coordinates = {
+            'x' : data[legend].instance[ $this.data('index') ].x,
+            'y' : data[legend].instance[ $this.data('index') ].y,
+        }
+        moveMap( coordinates.x, coordinates.y );
+    })
+
+    function moveMap(x,y){
+        $('#map').stop().animate({
+            left: ((x - ($('#map').width() - ($('#mapWindow').width()/2 - 275) )) * -1) + "px",
+            top: ((y - ($('#map').height() - ($('#mapWindow').height()/2) )) * -1) + "px",
+        }, 500, 'swing');
+    }
     
     $( '.legendItem' ).click(function(){
-        foreach( data[$(this).data('legend')][0].instance ){
-            console.log("yo");
+        
+        if (currInfo === false){
+            //set the current Info pane
+            currInfo = $( this ).data( 'legend' );
+
+            activateUI( currInfo );
+
+            //caching corresponding data from json
+            instances = data[$(this).data('legend')].instance;
+            name = data[$(this).data('legend')].name;
+            image = data[$(this).data('legend')].image;
+            description = data[$(this).data('legend')].info;
+
+            //injecting info into dom
+            entry = '<h1>' + name + '</h1><img id="infoImg" src="'+ image +'" alt="Dota 2 '+ name +'"> <h2 id="locations">Locations</h2><div id="dots"></div><p id="description">'+ description +'</p>';
+            $( '#info' ).prepend( entry );
+
+            //creates instances under map
+            for( i = 0; i < instances.length; i++){
+                instance = '<span class="dot" data-index="'+ i +'" style="-webkit-animation-delay:'+ i * 300 +'ms; animation-delay:'+ i * 300 +'"></span>'
+                $( '#dots' ).append( instance );
+            }
+            setDots();
         }
     });
-    
-    /*
-    for(i=0; i<= matrixArray.length-1; i++){
-		$(matrixArray[i]).click(function(){	
-            for(i=0; i<= matrixArray.length-1 ;i++){
-                $(legendArray[i]).removeClass("selected");
-                $(matrixArray[i]).removeClass("selected");
-                if('#'+this.id == matrixArray[i]){
-                    getInfo(i);
-                    open();
-                    $(legendArray[i]).addClass("selected");
-                    $(matrixArray[i]).addClass("selected");
-                    var x = $("#matrix"+ (i+1)).position();
-                    $('#map').stop().animate({
-                        left: ((x.left - ($('#map').width() - ($('#mapWindow').width()/2) )) * -1) + "px",
-                        top: ((x.top - ($('#map').height() - ($('#mapWindow').height()/2) )) * -1) + "px",
-                    }, 500, 'swing');
-                }
+
+    function activateUI( legendKey ){
+        $( '#legend' ).addClass( 'active' );
+        $( '.legendItem' ).addClass( 'deactive' );
+        for( i = 0; i < Object.keys(data).length; i++ ){
+            console.log( 'legendKey: ' + legendKey + ', data-legend: ' + $('#legend' + i).data( 'legend' ) );
+            if( $( '#legend' + i ).data( 'legend' ) === legendKey ){
+                $( '#legend' + i ).removeClass( 'deactive' ).addClass('active');
             }
-		});
-	}
-    */
-    
+        }
+        $( '#info' ).addClass('active');
+        $( '#exit' ).addClass('active');
+    }
+
+    function deactivateUI(){
+        $( '#legend' ).removeClass( 'active' );
+        $( '.legendItem' ).removeClass( 'deactive active' );
+        $( '#info' ).removeClass('active');
+        $( '#exit' ).removeClass('active');
+
+        window.setTimeout(function(){
+            $( '#info' ).html('<span id="exit"></span>');
+            setClick();
+        },300);
+    }
+
+    function setDots(){
+        $( '.dot' ).click(function(){
+            var coordinates = {
+                'x' : data[currInfo].instance[ $( this ).data( 'index' ) ].x,
+                'y' : data[currInfo].instance[ $( this ).data( 'index' ) ].y,
+            }
+            moveMap( coordinates.x, coordinates.y );
+        });
+    }
+
+    function setClick(){
+        $( '#exit' ).click(function(){
+            currInfo = false;
+            deactivateUI();
+
+        })
+    };
     
 });
