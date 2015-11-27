@@ -1,6 +1,7 @@
 $(document).ready(function(){
 
     var currInfo = false;
+    var currIndex = false;
     var mouse = {
         "x" : 0,
         "y" : 0
@@ -28,13 +29,13 @@ $(document).ready(function(){
     function windowSize(){
         $('#mapWindow').css('width', ( window.innerWidth - 225)+'px');
     }
-    
+
     function parentSize(){        
         containerWidth = ($('#map').width())*2 - $('#mapWindow').width();
         containerHeight =  ($('#map').height())*2 - $('#mapWindow').height();
         containerLeft = ($('#map').width() - $('#mapWindow').width()) * -1 + 'px',
         containerTop =  ($('#map').height() - $('#mapWindow').height()) * -1 +'px',
-        
+
         $('#mapContainer').css({
             'width': containerWidth+'px',
             'height': containerHeight+'px',
@@ -53,14 +54,14 @@ $(document).ready(function(){
             "x" : -1 * ( map.x + parseInt( containerLeft ) - event.pageX ),
             "y" : -1 * ( map.y + parseInt( containerTop ) - event.pageY )
         };
-        
+
         //console.log('x = ' + mouse.x + '  |  y = ' + mouse.y);
     });
 
 
-    
+
     $('#map').draggable({ containment: "parent" });
-        
+
     $('#mapClick').click(function(){
         //close();
         $('.selected').each(function(){
@@ -68,23 +69,23 @@ $(document).ready(function(){
         });
         $('.infoP').stop().animate({
             opacity : 0,
-                left: '-30px'
-            }, 250, 'swing');
+            left: '-30px'
+        }, 250, 'swing');
     });
-    
+
     function getInfo(number){
         number++;
         //$('.infoP').each(function(){
         //    if( ('#' + this.id) == ('#info'+number)){
-            $('.infoP').stop().animate({
-                opacity : 0,
-                left: '-30px'
-            }, 250, 'swing', function(){
-                $('#info' + number).stop().animate({
-                    opacity: 1,
-                    left: '0px'
-                }, 250, 'swing');
-            });
+        $('.infoP').stop().animate({
+            opacity : 0,
+            left: '-30px'
+        }, 250, 'swing', function(){
+            $('#info' + number).stop().animate({
+                opacity: 1,
+                left: '0px'
+            }, 250, 'swing');
+        });
         //   }
         //});
     }
@@ -111,7 +112,7 @@ $(document).ready(function(){
             var coordinates = {
                 'x' : type.instance[i].x,
                 'y' : type.instance[i].y,
-            }
+            };
             entry = '<div class="matrixItem" data-legend="'+ key +'" data-index="'+ i +'" style=" left:'+ (coordinates.x - 240) +'px; top:'+ ( coordinates.y - 20 ) +'px"></div>';
             $( '#map' ).prepend(entry);
         }
@@ -129,13 +130,29 @@ $(document).ready(function(){
     $( '.matrixItem' ).click(function(){
         $this = $( this );
         legend = $this.data( 'legend' );
-        console.log( legend );
-        var coordinates = {
-            'x' : data[legend].instance[ $this.data('index') ].x,
-            'y' : data[legend].instance[ $this.data('index') ].y,
+        index = $this.data( 'index' );
+
+        if( currInfo === false ){
+            currInfo = legend;
+            activateUI( currInfo );
+            updateInfo( currInfo );
+            activateDots( legend, index );
+
+        }else{
+            if( currInfo != legend ){
+                currInfo = legend;
+                deactivateUI();
+                window.setTimeout(function(){
+                    activateUI( currInfo );
+                    updateInfo( currInfo );
+                    activateDots( legend, index );
+                }, 300);
+
+            }else{
+                activateDots( legend, index );
+            }
         }
-        moveMap( coordinates.x, coordinates.y );
-    })
+    });
 
     function moveMap(x,y){
         $('#map').stop().animate({
@@ -143,31 +160,19 @@ $(document).ready(function(){
             top: ((y - ($('#map').height() - ($('#mapWindow').height()/2) )) * -1) + "px",
         }, 500, 'swing');
     }
-    
+
     $( '.legendItem' ).click(function(){
-        
+
         if (currInfo === false){
             //set the current Info pane
             currInfo = $( this ).data( 'legend' );
 
+            //inject info from json to info
+            updateInfo( currInfo );
+
+            //set active state to UI 
             activateUI( currInfo );
 
-            //caching corresponding data from json
-            instances = data[$(this).data('legend')].instance;
-            name = data[$(this).data('legend')].name;
-            image = data[$(this).data('legend')].image;
-            description = data[$(this).data('legend')].info;
-
-            //injecting info into dom
-            entry = '<h1>' + name + '</h1><img id="infoImg" src="'+ image +'" alt="Dota 2 '+ name +'"> <h2 id="locations">Locations</h2><div id="dots"></div><p id="description">'+ description +'</p>';
-            $( '#info' ).prepend( entry );
-
-            //creates instances under map
-            for( i = 0; i < instances.length; i++){
-                instance = '<span class="dot" data-index="'+ i +'" style="-webkit-animation-delay:'+ i * 300 +'ms; animation-delay:'+ i * 300 +'"></span>'
-                $( '#dots' ).append( instance );
-            }
-            setDots();
         }
     });
 
@@ -196,22 +201,72 @@ $(document).ready(function(){
         },300);
     }
 
+    function updateInfo( legendKey ){
+
+        //retrive and cache data from json
+        instances = data[ legendKey ].instance;
+        name = data[ legendKey ].name;
+        image = data[ legendKey ].image;
+        description = data[ legendKey ].info;
+
+        //injecting info into dom
+        entry = '<h1>' + name + '</h1><img id="infoImg" src="'+ image +'" alt="Dota 2 '+ name +'"> <h2 id="locations">Locations</h2><div id="dots"></div><p id="description">'+ description +'</p>';
+        $( '#info' ).prepend( entry );
+
+        //creates instances under map
+        for( i = 0; i < instances.length; i++){
+            instance = '<span class="dot" data-index="'+ i +'" style="-webkit-animation-delay:'+ i * 300 +'ms; animation-delay:'+ i * 300 +'"></span>';
+            $( '#dots' ).append( instance );
+        }
+        setDots();
+    }
+
     function setDots(){
+    //sets logic of dots when created
+    
         $( '.dot' ).click(function(){
-            var coordinates = {
-                'x' : data[currInfo].instance[ $( this ).data( 'index' ) ].x,
-                'y' : data[currInfo].instance[ $( this ).data( 'index' ) ].y,
-            }
-            moveMap( coordinates.x, coordinates.y );
+
+            //grab index of the dot clicked
+            currIndex = $( this ).data( 'index' );
+
+            activateDots( currInfo, currIndex );
+
         });
+    }
+
+    function activateDots( key, index ){
+    //takes a legend key, and index of instance, then activates the correct dots
+        var coordinates = {
+            'x' : data[ key ].instance[ index ].x,
+            'y' : data[ key ].instance[ index ].y,
+        };
+
+        instances = data[key].instance;
+
+        $( '.dot' ).removeClass( 'active' );
+        $( '.dot' ).each(function(){
+            if( $( this ).data( 'index' ) === index ){
+                $( this ).addClass('active');
+            }
+        });
+
+        $( '.matrixItem' ).removeClass( 'active' );
+        $( '.matrixItem' ).each(function(){
+            if( $( this ).data( 'index' ) === index && $( this ).data( 'legend' ) === key ){
+                $( this ).addClass('active');
+            }
+        });
+
+        moveMap( coordinates.x, coordinates.y );
     }
 
     function setClick(){
         $( '#exit' ).click(function(){
             currInfo = false;
+            $( '.matrixItem, .dot' ).removeClass( 'active' );
             deactivateUI();
 
-        })
-    };
-    
+        });
+    }
+
 });
